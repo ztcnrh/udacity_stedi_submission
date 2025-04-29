@@ -26,20 +26,20 @@ DEFAULT_DATA_QUALITY_RULESET = """
     ]
 """
 
-# Script generated for node Customer curated data
-Customercurateddata_node1745799214973 = glueContext.create_dynamic_frame.from_catalog(database="stedi", table_name="customers_curated", transformation_ctx="Customercurateddata_node1745799214973")
+# Script generated for node Customer trusted data
+Customertrusteddata_node1745799214973 = glueContext.create_dynamic_frame.from_options(format_options={"multiLine": "false"}, connection_type="s3", format="json", connection_options={"paths": ["s3://udacity-spark-tianchi-bucket/customer/trusted/"], "recurse": True}, transformation_ctx="Customertrusteddata_node1745799214973")
 
 # Script generated for node Step Trainer landing data
-StepTrainerlandingdata_node1745799205421 = glueContext.create_dynamic_frame.from_catalog(database="stedi", table_name="step_trainer_landing", transformation_ctx="StepTrainerlandingdata_node1745799205421")
+StepTrainerlandingdata_node1745799205421 = glueContext.create_dynamic_frame.from_options(format_options={"multiLine": "false"}, connection_type="s3", format="json", connection_options={"paths": ["s3://udacity-spark-tianchi-bucket/step_trainer/landing/"], "recurse": True}, transformation_ctx="StepTrainerlandingdata_node1745799205421")
 
 # Script generated for node Filter for step trainer data for customers who've agreed to share data for research and have acc data
-SqlQuery1300 = '''
+SqlQuery1857 = '''
 select train.*
 from step_trainer_landing as train
-inner join customer_curated as c on train.serialnumber = c.serialnumber
+inner join customer_trusted as c on train.serialnumber = c.serialnumber
 ;
 '''
-Filterforsteptrainerdataforcustomerswhoveagreedtosharedataforresearchandhaveaccdata_node1745799241752 = sparkSqlQuery(glueContext, query = SqlQuery1300, mapping = {"step_trainer_landing":StepTrainerlandingdata_node1745799205421, "customer_curated":Customercurateddata_node1745799214973}, transformation_ctx = "Filterforsteptrainerdataforcustomerswhoveagreedtosharedataforresearchandhaveaccdata_node1745799241752")
+Filterforsteptrainerdataforcustomerswhoveagreedtosharedataforresearchandhaveaccdata_node1745799241752 = sparkSqlQuery(glueContext, query = SqlQuery1857, mapping = {"step_trainer_landing":StepTrainerlandingdata_node1745799205421, "customer_trusted":Customertrusteddata_node1745799214973}, transformation_ctx = "Filterforsteptrainerdataforcustomerswhoveagreedtosharedataforresearchandhaveaccdata_node1745799241752")
 
 # Script generated for node Step Trainer trusted data
 EvaluateDataQuality().process_rows(frame=Filterforsteptrainerdataforcustomerswhoveagreedtosharedataforresearchandhaveaccdata_node1745799241752, ruleset=DEFAULT_DATA_QUALITY_RULESET, publishing_options={"dataQualityEvaluationContext": "EvaluateDataQuality_node1745796585600", "enableDataQualityResultsPublishing": True}, additional_options={"dataQualityResultsPublishing.strategy": "BEST_EFFORT", "observations.scope": "ALL"})
